@@ -1,0 +1,170 @@
+@font-face {
+  font-family: "FixedCrystalFont";
+  src: url("FixedCrystalFont.ttf");
+}
+
+@font-face {
+  font-family: "Pokemon GB";
+  src: url("Pokemon GB.ttf");
+}
+
+* {
+  word-break: unset !important;
+
+}
+
+ul {
+  background-color: transparent !important;
+  *{
+    color: black !important;
+  }
+}
+
+audio {
+  width: 70%;
+  filter: drop-shadow(5px 5px 3px rgba(0, 0, 0, 0.8));
+  margin-left: 2em;
+}
+
+.main-container {
+  font-family: "FixedCrystalFont";
+  font-variant: tabular-nums;
+  --button-background-color: #4d4d52;
+  color-scheme: dark;
+  font-size: 2rem;
+
+}
+
+label {
+  font-family: "Pokemon GB" !important;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.internal-thoughts-message {
+  display: inline-block;
+  min-height: 6em;
+  background-color: lightgrey;
+  border-radius: 1em;
+  padding: 1em;
+  margin: 1em;
+  width: 70%;
+  animation: thoughts-flash 0.25s ease-out;
+  filter: drop-shadow(5px 5px 3px rgba(0, 0, 0, 0.8));
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+
+  flex-wrap: nowrap;
+  overflow: hidden;
+  padding-top: 1em;
+  filter: drop-shadow(5px 5px 3px rgba(0, 0, 0, 0.8));
+}
+
+.button-wrapper {
+  animation: button-slide 0.25s ease-out,
+             button-grow 0.15s linear;
+  margin-right: 1em;
+
+
+}
+
+.button {
+  flex-shrink: 0;
+  background-color: var(--button-background-color);
+  width: 3em;
+  height: 3em;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: button-flash 0.4s linear;
+  border: 5px solid #32333a;
+  color: white;
+
+}
+
+.memory-tree{
+  margin-right: 3em;
+  padding: 1em;
+  border-radius: 1em;
+  background-color: lightgrey;
+  filter: drop-shadow(5px 5px 3px rgba(0, 0, 0, 0.8));
+
+}
+
+@keyframes button-grow {
+  0% {
+    width: 0;
+    margin-right: 0;
+  }
+
+  100% {
+    width: 3em;
+    margin-right: 1em;
+  }
+}
+
+@keyframes button-slide {
+  0% {
+    transform: translateY(120%)
+  }
+
+  70% {
+    transform: translateY(-20%);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes button-flash {
+  0%, 50% {
+    background-color: #84848c;
+    color: white;
+  }
+
+  //40%{
+  //  transform: rotate(0deg)
+  //}
+
+  60% {
+    background-color: #edfaff;
+    color: black;
+    //transform: rotate(-15deg)
+  }
+
+  80% {
+    //transform: rotate(15deg);
+    background-color: #edfaff;
+    color: black;
+  }
+
+  100% {
+    background-color: var(--button-background-color);
+    color: white;
+    //transform: rotate(0deg);
+  }
+}
+
+@keyframes thoughts-flash {
+  from {
+    background-color: #f1f1f1;
+  }
+}
