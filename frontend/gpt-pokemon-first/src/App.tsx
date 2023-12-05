@@ -31,8 +31,10 @@ function App() {
     } as any);
     let [currentTurn, setCurrentTurn] = useState(0);
     let [currentThoughts, setCurrentThoughts] = useState("No thoughts so far, only placeholders");
-    let [buttonHistory, setButtonHistory] = useState([] as any[]);
+    let [buttonHistory, setButtonHistory] = useState([] as string[]);
+    let [currentButton, setCurrentButton] = useState(-1);
     let [audioSrc, setAudioSrc] = useState("http://localhost:8000/thoughts000000001.mp3");
+    let [nextTurnProgress, setNextTurnProgress] = useState({} as any);
 
     const { sendMessage, lastMessage, readyState } = useWebSocket("ws://localhost:8001/", {
         shouldReconnect: (closeEvent) => true,
@@ -48,12 +50,11 @@ function App() {
             } else if (message["type"] === "turn") {
                 setCurrentTurn(message["payload"]);
                 setAudioSrc(`http://localhost:8000/thoughts${message["payload"].toString().padStart(9, "0")}.mp3`)
-            } else if (message["type"] === "button") {
-                setButtonHistory(old => {
-                    let last_button_key = old[old.length - 1]?.key ?? 0;
-                    return [...old.slice(-100),
-                        {button: message["payload"], key: last_button_key + 1}];
-                });
+            } else if (message["type"] === "buttons") {
+                setButtonHistory(message["payload"]["buttons"]);
+                setCurrentButton(message["payload"]["current_button"]);
+            } else if (message["type"] === "nextTurnProgress") {
+                setNextTurnProgress(message["payload"])
             }
         }
     }, [lastMessage, setCurrentThoughts]);
@@ -66,13 +67,12 @@ function App() {
             </div>
             <div className={"button-log"}>
                 <h2>Button presses:</h2>
-                <div className={"button-container"}>
+                <div className={"memory-tree"}>
                     {
-                        //@ts-ignore
                         buttonHistory.map((button, index) =>
-                            <div className={"button-wrapper"} key={button.key}>
-                                <div  className={"button"}>{button.button}</div>
-
+                            <div className={"button-wrapper"}>
+                                {currentButton === index ? <div className={"button current-button"}>{button}</div>
+                                    : <div className={"button"}>{button}</div>}
                             </div>
                         )
                     }
@@ -84,7 +84,7 @@ function App() {
                 <span className={"internal-thoughts-message"} key={currentThoughts}>{currentThoughts}</span>
             </div>
 
-            <audio controls src={audioSrc} key={audioSrc} autoPlay={true} />
+            <audio controls src={audioSrc} key={audioSrc} autoPlay={true}/>
 
             {/*<button onClick={() => setButtonHistory(old => [...old, {button: "Down", key: old.length}])}>Add a button!</button>*/}
             <div className={"memory-display"}>
@@ -98,10 +98,22 @@ function App() {
                 </div>
 
             </div>
+
+            <div className={"memory-display"}>
+                <h2>Next turn progress:</h2>
+                <div className={"memory-tree"}>
+                    <JSONTree data={nextTurnProgress}
+                              shouldExpandNodeInitially={_ => true}
+                              theme={colorScheme}
+                              invertTheme={true}
+                    />
+                </div>
+
+            </div>
         </div>
 
 
-  );
+    );
 }
 
 export default App;

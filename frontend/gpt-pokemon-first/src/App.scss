@@ -77,11 +77,9 @@ html, body {
 }
 
 .button-wrapper {
-  animation: button-slide 0.25s ease-out,
-             button-grow 0.15s linear;
   margin-right: 1em;
-
-
+  margin-top: 1em;
+  display: inline-block;
 }
 
 .button {
@@ -93,10 +91,13 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  animation: button-flash 0.4s linear;
   border: 5px solid #32333a;
   color: white;
+}
 
+.current-button {
+  animation: button-flash 0.4s linear;
+  border: 5px solid greenyellow;
 }
 
 .memory-tree{
@@ -135,32 +136,27 @@ html, body {
 }
 
 @keyframes button-flash {
-  0%, 50% {
-    background-color: #84848c;
+  0% {
+    background-color: var(--button-background-color);
     color: white;
+    transform: translateY(0);
   }
 
-  //40%{
-  //  transform: rotate(0deg)
-  //}
-
-  60% {
+  25% {
     background-color: #edfaff;
     color: black;
-    //transform: rotate(-15deg)
+    transform: translateY(-10px);
   }
 
-  80% {
-    //transform: rotate(15deg);
-    background-color: #edfaff;
-    color: black;
+  75% {
+    transform: translateY(0);
   }
 
   100% {
     background-color: var(--button-background-color);
     color: white;
-    //transform: rotate(0deg);
   }
+
 }
 
 @keyframes thoughts-flash {
