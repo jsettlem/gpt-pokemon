@@ -31,10 +31,10 @@ def get_gpt_response(prompt):
     pprint(prompt)
 
     completion = client.chat.completions.create(
-        model="gpt-4-vision-preview",
+        model="gpt-4o",
         messages=prompt,
         max_tokens=1024,
-        # response_format={"type": "json_object"},
+        response_format={"type": "json_object"},
     )
 
     pprint(completion)
@@ -50,8 +50,8 @@ def get_gpt_response(prompt):
     # )
 
 
-def get_commentary(thoughts, turn_number):
-    commentary_path = f"commentary/thoughts{turn_number:09}.mp3"
+def get_commentary(thoughts, turn_number, suffix):
+    commentary_path = f"commentary{suffix}/thoughts{turn_number:09}.mp3"
 
     response = client.audio.speech.create(model="tts-1", voice="echo", input=thoughts)
 
@@ -64,11 +64,16 @@ def get_commentary(thoughts, turn_number):
     return commentary_path
 
 
-def main():
+def main(suffix=""):
     # connect to local mongo
     client = pymongo.MongoClient("localhost", 27017)
     # grab 10 most recent turns from the database
-    turns = client["pokemon"].turns.find().sort("turn", pymongo.DESCENDING).limit(5)
+    turns = (
+        client["pokemon" + suffix]
+        .turns.find()
+        .sort("turn", pymongo.DESCENDING)
+        .limit(5)
+    )
 
     turns = list(turns)
 
@@ -89,7 +94,7 @@ def main():
         `
         "thoughts": A short string in which you should analyze the current situation and think step-by-step about what to do next. This will also serve as live commentary, read out to the YouTube audience.
         "memory": Arbitrary JSON containing notes to your future self. This should include both short and long term goals and important information you learn. This is the only information that will be passed to your future self, so you should include anything from the previous session that you still want to remember including any important lessons that you've learned while removing anything no longer relevant to save on token cost. For example, if something you've tried to achieve a goal has not worked many times in a row, you might want to record it in your memory for future reference.
-        "buttons": A sequence of button presses you want to input into the game. These will be entered one second apart so you can safely navigate entire tiles or select menu options. To be efficient, try to plan ahead and input as many button presses in sequence as you can.
+        "buttons": A sequence of button presses you want to input into the game. These will be entered one second apart so you can safely navigate entire tiles or select menu options. To be efficient, try to plan ahead and input as many button presses in sequence as you can. The only valid button inputs are "A", "B", "UP", "DOWN", "LEFT", "RIGHT", and "START".
         
         Only output JSON. Do not include a Markdown block around it.
 					"""
@@ -231,19 +236,21 @@ def main():
             pyboy.tick()
 
         pil_image = pyboy.screen_image()
-        screenshot_path = f"screenshots/screenshot_{current_screenshot_index:07}.png"
+        screenshot_path = (
+            f"screenshots{suffix}/screenshot_{current_screenshot_index:07}.png"
+        )
         pil_image.save(screenshot_path)
         current_screenshot_index += 1
 
         next_turn["screenshots"].append(screenshot_path)
 
-    savestate_path = f"savestates/state_{most_recent_turn['turn'] + 1:07}.save"
+    savestate_path = f"savestates{suffix}/state_{most_recent_turn['turn'] + 1:07}.save"
     pyboy.save_state(open(savestate_path, "wb"))
     next_turn["savestate"] = savestate_path
 
-    client["pokemon"].turns.insert_one(next_turn)
+    client["pokemon" + suffix].turns.insert_one(next_turn)
 
-    commentary_file = get_commentary(next_turn["thoughts"], next_turn["turn"])
+    commentary_file = get_commentary(next_turn["thoughts"], next_turn["turn"], suffix)
 
     # Discord webhook
     webhook_url = os.environ.get("WEBHOOK_URL")
@@ -256,7 +263,6 @@ Memory:
 {json.dumps(next_turn['memory'], indent=2)}
 ```
         """,
-        
     }
 
     requests.post(
@@ -277,11 +283,11 @@ Memory:
 
 
 if __name__ == "__main__":
-    for i in range(10):
+    for i in range(5):
         try:
-            main()
+            main(suffix="-o1")
         except Exception as e:
             print(f"Exception occurred on turn {i}: {e}")
 
         print(f"Turn {i} complete. Waiting 5 seconds...")
-        time.sleep(5)
+        time.sleep(15)

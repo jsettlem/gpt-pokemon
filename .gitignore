@@ -1,7 +1,7 @@
 /.idea/
-/commentary/
-/savestates/
-/screenshots/
+/commentary*/
+/savestates*/
+/screenshots*/
 /video/
 /.env
 /notes.txt
